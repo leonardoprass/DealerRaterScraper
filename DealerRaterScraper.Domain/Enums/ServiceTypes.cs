@@ -2,8 +2,8 @@
 {
     public enum ServiceTypes
     {
-        ServiceVisit,
-        SalesVisitUsed,
-        SalesVisitNew
+        ServiceVisit = 1,
+        SalesVisitUsed = 2,
+        SalesVisitNew = 3
     }
 }

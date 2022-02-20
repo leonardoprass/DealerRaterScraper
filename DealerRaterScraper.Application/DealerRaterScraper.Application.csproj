@@ -17,4 +17,8 @@
     <ProjectReference Include="..\DealerRaterScraper.Domain\DealerRaterScraper.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ReviewRater\" />
+  </ItemGroup>
+
 </Project>

@@ -32,7 +32,8 @@ namespace DealerRaterScraper.Application.Scraper
             float averageEmployeesRating = GetAverageRating(employeesEvaluationsNodes);
 
             var dealerRecommended = NormalizeText(review.SelectSingleNode(".//div[@class='td small-text boldest']").InnerText).FirstOrDefault();
-            Enum.TryParse(generalInfo.ElementAt(1)?.Replace("-", string.Empty).Replace(" ", string.Empty), ignoreCase: true, out ServiceTypes serviceType);
+            var serviceTypeText = generalInfo.FirstOrDefault(c => c.ToLower().Contains("visit"));
+            Enum.TryParse(serviceTypeText?.Replace("-", string.Empty).Replace(" ", string.Empty), ignoreCase: true, out ServiceTypes serviceType);
 
             return new ReviewItem
             {
