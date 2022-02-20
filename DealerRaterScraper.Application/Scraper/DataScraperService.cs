@@ -1,4 +1,5 @@
 ﻿using DealerRaterScraper.Domain;
+using DealerRaterScraper.Domain.Enums;
 using HtmlAgilityPack;
 
 namespace DealerRaterScraper.Application.Scraper
@@ -31,6 +32,7 @@ namespace DealerRaterScraper.Application.Scraper
             float averageEmployeesRating = GetAverageRating(employeesEvaluationsNodes);
 
             var dealerRecommended = NormalizeText(review.SelectSingleNode(".//div[@class='td small-text boldest']").InnerText).FirstOrDefault();
+            Enum.TryParse(generalInfo.ElementAt(1)?.Replace("-", string.Empty).Replace(" ", string.Empty), ignoreCase: true, out ServiceTypes serviceType);
 
             return new ReviewItem
             {
@@ -41,14 +43,17 @@ namespace DealerRaterScraper.Application.Scraper
                 DealershipRating = GetRating(dealershipRating.GetClasses()),
                 RecommendDealer = dealerRecommended?.ToLower() == "yes",
                 Reviewer = reviewedBy ?? string.Empty,
-                ServiceType = generalInfo.ElementAt(1)
+                ServiceType = serviceType
             };
         }
 
         private static float GetAverageRating(HtmlNodeCollection evaluationNodes)
         {
+            if (evaluationNodes == null || !evaluationNodes.Any())
+                return 0;
+
             float averageServiceRating = evaluationNodes.Sum(t => GetRating(t.GetClasses()));
-         
+
             return averageServiceRating / evaluationNodes.Count;
         }
 

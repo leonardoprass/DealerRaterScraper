@@ -38,12 +38,19 @@ namespace DealerRaterScraper.Application.Scraper
 
         private async Task LoadReviewAsync(HtmlWeb web, List<ReviewItem> result, int i)
         {
-            var document = await web.LoadFromWebAsync(string.Format(_configurationSettings.BaseUrl, i), Encoding.UTF8);
-            var reviews = document.DocumentNode.SelectNodes("//div[contains(@class, 'review-entry')]");
+            try
+            {
+                var document = await web.LoadFromWebAsync(string.Format(_configurationSettings.BaseUrl, i), Encoding.UTF8);
+                var reviews = document.DocumentNode.SelectNodes("//div[contains(@class, 'review-entry')]");
 
-            result.AddRange(reviews.Select(
-                r => _dataScraperService.GetReviewDataFromNode(r)
-            ));
+                result.AddRange(reviews.Select(
+                    r => _dataScraperService.GetReviewDataFromNode(r)
+                ));
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Something wrong reading page {i}. Message {ex.Message}", ex);
+            }
         }
     }
 }

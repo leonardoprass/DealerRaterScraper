@@ -28,6 +28,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="ReviewSamples\FiveStarServiceReviewEntry.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="ReviewSamples\FourStarReviewEntry.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
