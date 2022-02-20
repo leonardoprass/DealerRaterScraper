@@ -12,27 +12,30 @@ namespace DealerRaterScraper.Application.Scraper
     {
         public ReviewItem GetReviewDataFromNode(HtmlNode review)
         {
-            var reviewDateNode = review.SelectSingleNode(".//div[contains(@class, 'review-date')]");
-            var dealershipRating = reviewDateNode.SelectSingleNode(".//div[contains(@class, 'rating-static')]");
-            var generalInfo = NormalizeText(reviewDateNode.InnerText);
+            var generalInfoNode = review.SelectSingleNode(".//div[contains(@class, 'review-date')]");
+            var dealershipRating = generalInfoNode.SelectSingleNode(".//div[contains(@class, 'rating-static')]");
 
-            var body = review.SelectSingleNode(".//div[contains(@class, 'review-wrapper')]");
-            var title = body.SelectSingleNode(".//span[contains(@class, 'review-title')]");
-            var reviewWhole = body.SelectSingleNode(".//span[contains(@class, 'review-whole')]");
+            var bodyNode = review.SelectSingleNode(".//div[contains(@class, 'review-wrapper')]");
+            var titleNode = bodyNode.SelectSingleNode(".//span[contains(@class, 'review-title')]");
+            var reviewWholeNode = bodyNode.SelectSingleNode(".//span[contains(@class, 'review-whole')]");
 
-            var reviewBody = $"{title.InnerText.Trim()} {reviewWhole.InnerText.Trim()}";
-            var reviewedBy = NormalizeText(body.SelectSingleNode(".//span[contains(@class, 'font-16')]").InnerText).FirstOrDefault();
+            var starEvaluationsNodes = review.SelectNodes(".//div[contains(@class, 'rating-static-indv')]");
+            var employeesNode = review.SelectSingleNode(".//div[contains(@class, 'employees-wrapper')]");
+            var employeesEvaluationsNodes = employeesNode.SelectNodes(".//div[contains(@class, 'rating-static')]");
 
-            var starEvaluations = review.SelectNodes(".//div[contains(@class, 'rating-static-indv')]");
+            var reviewBody = $"{titleNode.InnerText.Trim()} {reviewWholeNode.InnerText.Trim()}";
+            var reviewedBy = NormalizeText(bodyNode.SelectSingleNode(".//span[contains(@class, 'font-16')]").InnerText).FirstOrDefault();
+            var generalInfo = NormalizeText(generalInfoNode.InnerText);
 
-            float averageRating = starEvaluations.Sum(t => GetRating(t.GetClasses()));
-            averageRating /= starEvaluations.Count;
+            float averageServiceRating = GetAverageRating(starEvaluationsNodes);
+            float averageEmployeesRating = GetAverageRating(employeesEvaluationsNodes);
 
             var dealerRecommended = NormalizeText(review.SelectSingleNode(".//div[@class='td small-text boldest']").InnerText).FirstOrDefault();
 
             return new ReviewItem
             {
-                AverageServiceRating = averageRating,
+                AverageEmployeesRating = averageEmployeesRating,
+                AverageServiceRating = averageServiceRating,
                 Content = reviewBody,
                 Date = generalInfo.ElementAt(0),
                 DealershipRating = GetRating(dealershipRating.GetClasses()),
@@ -40,6 +43,13 @@ namespace DealerRaterScraper.Application.Scraper
                 Reviewer = reviewedBy ?? string.Empty,
                 ServiceType = generalInfo.ElementAt(1)
             };
+        }
+
+        private static float GetAverageRating(HtmlNodeCollection evaluationNodes)
+        {
+            float averageServiceRating = evaluationNodes.Sum(t => GetRating(t.GetClasses()));
+         
+            return averageServiceRating / evaluationNodes.Count;
         }
 
         private static int GetRating(IEnumerable<string> classes)

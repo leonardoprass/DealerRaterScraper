@@ -1,7 +1,6 @@
 using DealerRaterScraper.Application.Scraper;
 using DealerRaterScraper.Domain;
 using HtmlAgilityPack;
-using Moq;
 using System.Text;
 using Xunit;
 
@@ -20,6 +19,7 @@ namespace DealerRaterScraper.Test
                 Content = @"Great service!  No hassle, honest communication, and no back and forth fake bargaining experience.  We’ll be back here for our next vehicle purchase.",
                 Reviewer = "by Happy Buyer",
                 AverageServiceRating = 5,
+                AverageEmployeesRating = 5,
                 RecommendDealer = true
             };
 
@@ -36,6 +36,7 @@ namespace DealerRaterScraper.Test
             Assert.Equal(review.ServiceType, result.ServiceType);
             Assert.Equal(review.Content, result.Content);
             Assert.Equal(review.Reviewer, result.Reviewer);
+            Assert.Equal(review.AverageEmployeesRating, result.AverageEmployeesRating);
             Assert.Equal(review.AverageServiceRating, result.AverageServiceRating);
             Assert.Equal(review.RecommendDealer, result.RecommendDealer);
         }
@@ -51,6 +52,7 @@ namespace DealerRaterScraper.Test
                 Content = @"Adrian is excellent. I didn’t get the exact deal I wanted, but close enough to make it work. I drove from Henderson and would do it again. I highly recommend you do the same.",
                 Reviewer = "by randyrandel",
                 AverageServiceRating = 4.5f,
+                AverageEmployeesRating = 4f,
                 RecommendDealer = true
             };
 
@@ -68,6 +70,7 @@ namespace DealerRaterScraper.Test
             Assert.Equal(review.Content, result.Content);
             Assert.Equal(review.Reviewer, result.Reviewer);
             Assert.Equal(review.AverageServiceRating, result.AverageServiceRating);
+            Assert.Equal(review.AverageEmployeesRating, result.AverageEmployeesRating);
             Assert.Equal(review.RecommendDealer, result.RecommendDealer);
         }
 
