@@ -1,4 +1,5 @@
-﻿using DealerRaterScraper.Domain;
+﻿using DealerRaterScraper.Common.Helper;
+using DealerRaterScraper.Domain;
 using DealerRaterScraper.Domain.Enums;
 using HtmlAgilityPack;
 
@@ -25,13 +26,13 @@ namespace DealerRaterScraper.Application.Scraper
             var employeesEvaluationsNodes = employeesNode.SelectNodes(".//div[contains(@class, 'rating-static')]");
 
             var reviewBody = $"{titleNode.InnerText.Trim()} {reviewWholeNode.InnerText.Trim()}";
-            var reviewedBy = NormalizeText(bodyNode.SelectSingleNode(".//span[contains(@class, 'font-16')]").InnerText).FirstOrDefault();
-            var generalInfo = NormalizeText(generalInfoNode.InnerText);
+            var reviewedBy = StringHelper.NormalizeText(bodyNode.SelectSingleNode(".//span[contains(@class, 'font-16')]").InnerText).FirstOrDefault();
+            var generalInfo = StringHelper.NormalizeText(generalInfoNode.InnerText);
 
             float averageServiceRating = GetAverageRating(starEvaluationsNodes);
             float averageEmployeesRating = GetAverageRating(employeesEvaluationsNodes);
 
-            var dealerRecommended = NormalizeText(review.SelectSingleNode(".//div[@class='td small-text boldest']").InnerText).FirstOrDefault();
+            var dealerRecommended = StringHelper.NormalizeText(review.SelectSingleNode(".//div[@class='td small-text boldest']").InnerText).FirstOrDefault();
             var serviceTypeText = generalInfo.FirstOrDefault(c => c.ToLower().Contains("visit"));
             Enum.TryParse(serviceTypeText?.Replace("-", string.Empty).Replace(" ", string.Empty), ignoreCase: true, out ServiceTypes serviceType);
 
@@ -72,12 +73,6 @@ namespace DealerRaterScraper.Application.Scraper
                 return 1;
 
             return 0;
-        }
-
-        private static IEnumerable<string> NormalizeText(string text)
-        {
-            //clean whitespaces and line breaks to only get data with actual text
-            return text.Replace("\n", "").Replace("\r", "").Trim().Split("  ").Where(t => t.Length > 0);
         }
     }
 }

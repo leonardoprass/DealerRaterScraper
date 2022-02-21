@@ -1,28 +1,24 @@
-using DealerRaterScraper.Application.Scraper;
+using DealerRaterScraper.Application.Ranking;
 using DealerRaterScraper.Domain;
 using DealerRaterScraper.Domain.Enums;
-using HtmlAgilityPack;
-using System.Text;
+using Moq;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace DealerRaterScraper.Test
 {
     public class ReviewRaterTest
     {
-        [Fact]
-        public void FiveStarReviewShouldBeGreaterThan4Star()
+        private readonly Mock<INlpService> _nlpServiceMock;
+        public ReviewRaterTest()
         {
-            //criteria
-            /*
-             * DealershipRating * 2 +
-             * AverageServiceRating +
-             * AverageEmployeeRating +
-             * RecommendedDealer => +5
-             * Service type =>
-             *   SalesVisit => +1
-             *   SalesVisitUsed => +2
-             *   SalesVisitNew => +3
-             */
+            _nlpServiceMock = new Mock<INlpService>();
+        }
+
+        [Fact]
+        public void ShouldRankBasedOnScore()
+        {
             var fourStarReview = new ReviewItem()
             {
                 Date = "November 16, 2021",
@@ -35,25 +31,7 @@ namespace DealerRaterScraper.Test
                 RecommendDealer = true
             };
 
-            var fireStarReview = new ReviewItem()
-            {
-                Date = "November 29, 2021",
-                DealershipRating = 5,
-                ServiceType = ServiceTypes.SalesVisitNew,
-                Content = @"Great service!  No hassle, honest communication, and no back and forth fake bargaining experience.  We値l be back here for our next vehicle purchase.",
-                Reviewer = "by Happy Buyer",
-                AverageServiceRating = 5,
-                AverageEmployeesRating = 5,
-                RecommendDealer = true
-            };
-
-            Assert.True(fireStarReview.Score > fourStarReview.Score);
-        }
-
-        [Fact]
-        public void SalesNewVisitShouldBeGreaterThanServiceVisit()
-        {
-            var salesVisitReview = new ReviewItem()
+            var fiveStarReview = new ReviewItem()
             {
                 Date = "November 29, 2021",
                 DealershipRating = 5,
@@ -77,13 +55,18 @@ namespace DealerRaterScraper.Test
                 RecommendDealer = true
             };
 
-            Assert.True(salesVisitReview.Score > serviceVisitReview.Score);
+            var reviewRaterService = new ReviewRaterService(_nlpServiceMock.Object);
+            var rankedReviews = reviewRaterService.GetTopReviews(new List<ReviewItem> { fourStarReview, fiveStarReview, serviceVisitReview });
+
+            Assert.Equal(fiveStarReview, rankedReviews.ElementAt(0));
+            Assert.Equal(serviceVisitReview, rankedReviews.ElementAt(1));
+            Assert.Equal(fourStarReview, rankedReviews.ElementAt(2));
         }
 
         [Fact]
-        public void MaxScoreReviewShouldBe28()
+        public void TiedScoresShouldCallNlp()
         {
-            var review = new ReviewItem()
+            var fiveStarReview = new ReviewItem()
             {
                 Date = "November 29, 2021",
                 DealershipRating = 5,
@@ -95,8 +78,46 @@ namespace DealerRaterScraper.Test
                 RecommendDealer = true
             };
 
-            Assert.Equal(28, review.Score);
-        }
+            var fiveStarReview2 = new ReviewItem()
+            {
+                Date = "November 29, 2021",
+                DealershipRating = 5,
+                ServiceType = ServiceTypes.SalesVisitNew,
+                Content = @"Great service!  No hassle, honest communication, and no back and forth fake bargaining experience.  We値l be back here for our next vehicle purchase.",
+                Reviewer = "by Happy Buyer",
+                AverageServiceRating = 5,
+                AverageEmployeesRating = 5,
+                RecommendDealer = true
+            };
 
+            var fiveStarReview3 = new ReviewItem()
+            {
+                Date = "November 29, 2021",
+                DealershipRating = 5,
+                ServiceType = ServiceTypes.SalesVisitNew,
+                Content = @"Great service!  No hassle, honest communication, and no back and forth fake bargaining experience.  We値l be back here for our next vehicle purchase.",
+                Reviewer = "by Happy Buyer",
+                AverageServiceRating = 5,
+                AverageEmployeesRating = 5,
+                RecommendDealer = true
+            };
+
+            var fiveStarReview4 = new ReviewItem()
+            {
+                Date = "November 29, 2021",
+                DealershipRating = 5,
+                ServiceType = ServiceTypes.SalesVisitNew,
+                Content = @"Great service!  No hassle, honest communication, and no back and forth fake bargaining experience.  We値l be back here for our next vehicle purchase.",
+                Reviewer = "by Happy Buyer",
+                AverageServiceRating = 5,
+                AverageEmployeesRating = 5,
+                RecommendDealer = true
+            };
+
+            var reviewRaterService = new ReviewRaterService(_nlpServiceMock.Object);
+            reviewRaterService.GetTopReviews(new List<ReviewItem> { fiveStarReview, fiveStarReview2, fiveStarReview3, fiveStarReview4 });
+
+            _nlpServiceMock.Verify(m => m.Analyze(It.IsAny<List<ReviewItem>>()), Times.Once());
+        }
     }
 }

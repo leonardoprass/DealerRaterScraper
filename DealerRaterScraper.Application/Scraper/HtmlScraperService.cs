@@ -2,14 +2,13 @@
 using DealerRaterScraper.Domain;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Options;
-using System.Collections;
 using System.Text;
 
 namespace DealerRaterScraper.Application.Scraper
 {
     public interface IHtmlScraperService
     {
-        Task<List<ReviewItem>> ScrapeReviewsAsync();
+        Task<IEnumerable<ReviewItem>> ScrapeReviewsAsync();
     }
 
     public class HtmlScraperService : IHtmlScraperService
@@ -22,7 +21,7 @@ namespace DealerRaterScraper.Application.Scraper
             _configurationSettings = options.Value;
         }
 
-        public async Task<List<ReviewItem>> ScrapeReviewsAsync()
+        public async Task<IEnumerable<ReviewItem>> ScrapeReviewsAsync()
         {
             var web = new HtmlWeb();
             var result = new List<ReviewItem>();
@@ -33,7 +32,7 @@ namespace DealerRaterScraper.Application.Scraper
 
             await Task.WhenAll(tasks.ToArray());
             
-            return result;
+            return result.Where(r => r != null);
         }
 
         private async Task LoadReviewAsync(HtmlWeb web, List<ReviewItem> result, int i)

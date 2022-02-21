@@ -1,4 +1,5 @@
-﻿using DealerRaterScraper.Application.Scraper;
+﻿using DealerRaterScraper.Application.Ranking;
+using DealerRaterScraper.Application.Scraper;
 using DealerRaterScraper.Common;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,6 +25,8 @@ namespace DealerRaterScraper.Client
             services
              .AddScoped<IDataScraperService, DataScraperService>()
              .AddScoped<IHtmlScraperService, HtmlScraperService>()
+             .AddScoped<INlpService, NlpService>()
+             .AddScoped<IReviewRaterService, ReviewRaterService>()
              .BuildServiceProvider();
         }
     }
