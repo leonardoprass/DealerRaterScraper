@@ -26,7 +26,6 @@ namespace DealerRaterScraper.Client
              .AddScoped<IDataScraperService, DataScraperService>()
              .AddScoped<IHtmlScraperService, HtmlScraperService>()
              .AddScoped<INlpService, NlpService>()
-             .AddScoped<IReviewRaterService, ReviewRaterService>()
              .BuildServiceProvider();
         }
     }

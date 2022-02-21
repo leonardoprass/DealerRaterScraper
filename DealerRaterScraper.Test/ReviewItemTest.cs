@@ -9,17 +9,6 @@ namespace DealerRaterScraper.Test
         [Fact]
         public void FiveStarReviewShouldBeGreaterThan4Star()
         {
-            //criteria
-            /*
-             * DealershipRating * 2 +
-             * AverageServiceRating +
-             * AverageEmployeeRating +
-             * RecommendedDealer => +5
-             * Service type =>
-             *   SalesVisit => +1
-             *   SalesVisitUsed => +2
-             *   SalesVisitNew => +3
-             */
             var fourStarReview = new ReviewItem()
             {
                 Date = "November 16, 2021",
