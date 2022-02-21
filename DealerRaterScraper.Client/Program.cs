@@ -2,15 +2,12 @@
 using DealerRaterScraper.Application.Scraper;
 using DealerRaterScraper.Client;
 using Microsoft.Extensions.DependencyInjection;
-using System.Diagnostics;
 
 var services = new ServiceCollection();
 
-Stopwatch stopwatch = new Stopwatch();
-stopwatch.Start();
-
 Startup startup = new Startup();
 startup.ConfigureServices(services);
+
 IServiceProvider serviceProvider = services.BuildServiceProvider();
 
 try
@@ -20,23 +17,20 @@ try
         .ScrapeReviewsAsync();
 
     var topReviews = serviceProvider
-        .GetService<IReviewRaterService>()
-        .GetTopReviews(items);
+        .GetService<INlpService>()
+        .Analyze(items);
 
     foreach (var item in topReviews)
     {
-        Console.WriteLine(item.Content);
-        Console.WriteLine(item.Reviewer);
+        Console.WriteLine($"Date: {item.Date}");
+        Console.WriteLine($"Reason: {item.ServiceType}");
+        Console.WriteLine($"Review: {item.Content}");
+        Console.WriteLine($"Dealership Rating: {item.DealershipRating}");
+        Console.WriteLine($"Average Employees Rating: {item.AverageEmployeesRating}");
+        Console.WriteLine($"Average Service Rating: {item.AverageServiceRating}");
+        Console.WriteLine($"Reviewed {item.Reviewer}");
         Console.WriteLine();
     }
-    
-    stopwatch.Stop();
-
-    TimeSpan ts = stopwatch.Elapsed;
-
-    Console.WriteLine(items.Count().ToString());
-    Console.WriteLine("Elapsed Time is {0:00}:{1:00}:{2:00}.{3}",
-                    ts.Hours, ts.Minutes, ts.Seconds, ts.Milliseconds);
 }
 catch (Exception ex)
 {
